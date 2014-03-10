@@ -14,6 +14,7 @@ class Campaign:
     token = ''
     acct_id = ''
     campaign_group_id = 0
+    campaign_id = 0
     def __init__(self, token, acct_id):
         self.token = token
         self.acct_id = acct_id
@@ -22,9 +23,10 @@ class Campaign:
         # if self.campaign_group_id == 0:
         #     self.get_campaign_group_id()
         current_time = int(time.time()) #needed in order to code for known upcoming breaking changes
-        campaign_id = self.get_campaign_id(current_time)
+        if self.campaign_id == 0:
+            self.campaign_id = self.get_campaign_id(current_time)
         # campaign_id = 6016406949638
-        print "Use the campaign id "+str(campaign_id)+" to look up details about these ads"
+        print "Use the campaign id "+str(self.campaign_id)+" to look up details about these ads"
     #     Now create the batch request for the ad group and any creatives
         if len(self.ads) > 0:
             batch = []
@@ -49,7 +51,7 @@ class Campaign:
 
             for ad in self.ads:
                 creative = {"method":"POST", "relative_url": "act_"+self.acct_id+"/adgroups","redownload":True,
-                  "body": ad.build_api_request_body(campaign_id, images)
+                  "body": ad.build_api_request_body(self.campaign_id, images)
                  }
                 batch.append(creative)
             data['batch'] = json.dumps(batch)
@@ -58,7 +60,7 @@ class Campaign:
             response = requests.post('https://graph.facebook.com', data=data)
             print response.text
         else:
-            print "No ads created. Campaign Id is "+str(campaign_id)
+            print "No ads created. Campaign Id is "+str(self.campaign_id)
     # this function creates a new ad campaign id to be used in the batch request setting up the ad groups and creatives
     def get_campaign_id(self, time):
         if time >= 1397001600:
@@ -100,7 +102,7 @@ def get_campaign(token, acct_id):
     # prompt = 'If you have an existing ad campaign group id you want to reuse, enter it here. Leave this input empty' \
     # ' to have the application create a new id for you automatically: '
     # campaign_group_id = raw_input(prompt)
-    # while campaign_group_id != '' and campaign_group_id.isDigit() == False:
+    # while campaign_group_id != '' and campaign_group_id.isdigit() == False:
     #     campaign_group_id = raw_input('please enter the campaign_group_id (a number) or leave this field empty: ')
     # if campaign_group_id != '':
     #     campaign1.campaign_group_id = campaign_group_id
@@ -108,7 +110,7 @@ def get_campaign(token, acct_id):
     prompt = 'If you have an existing ad campaign id you want to reuse, enter it here. Leave this input empty' \
         ' to have the application create a new id for you automatically: '
     campaign_id = raw_input(prompt)
-    while campaign_id != '' and campaign_id.isDigit() == False:
+    while campaign_id != '' and campaign_id.isdigit() == False:
         campaign_id = raw_input('please enter the campaign_id (a number) or leave this field empty: ')
     if campaign_id != '':
         campaign1.campaign_id = campaign_id
